@@ -1,0 +1,13 @@
+backup.sh
+backup_exclude.list
+backup_include.list
+backup_prev.list
+cache/*
+tmp/*
+temp/*
+*.mp3
+.well-known/*
+advagg_css/*
+advagg_js/*
+sites/default/files/styles/*
+storage/logs/*.log

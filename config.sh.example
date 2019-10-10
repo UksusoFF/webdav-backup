@@ -1,0 +1,6 @@
+#!/bin/bash
+
+export WEBDAVURL="https://webdav.yandex.ru"
+export WEBDAVUSER="backup@example.ru"
+export WEBDAVPASS="example"
+export ARCMAX="3"
