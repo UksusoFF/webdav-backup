@@ -56,7 +56,7 @@ done
 mysql -N -e "SHOW DATABASES;" | grep -v -E "performance_schema|information_schema|mysql|afterlogic|sys" | while read DB; do
   ARCHIVE_NAME=${DB}_db.sql.gz
 
-  ARCHIVE_PATH=$SCRIPT_DIR/ARCHIVE_NAME
+  ARCHIVE_PATH=$SCRIPT_DIR/$ARCHIVE_NAME
 
   mysqldump "$DB" | gzip >"$ARCHIVE_PATH"
 
