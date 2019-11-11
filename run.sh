@@ -18,14 +18,14 @@ source "$SCRIPT_DIR/config.sh"
 echo "Local available space: $(df -h . | awk 'END {print $4}')"
 echo "Local used space: $(df -h . | awk 'END {print $5}')"
 
-REMOTE_SPACE_INFO=$(curl -i --request PROPFIND --header "Depth: 0" --data-ascii "<D:propfind xmlns:D=\"DAV:\"><D:prop><D:quota-available-bytes/><D:quota-used-bytes/></D:prop></D:propfind>" --user "$WEBDAVUSER":"$WEBDAVPASS" "$WEBDAVURL" --silent --show-error)
+REMOTE_SPACE_INFO=$(curl -i --request PROPFIND --header "Depth: 0" --data-ascii "<D:propfind xmlns:D=\"DAV:\"><D:prop><D:quota-available-bytes/><D:quota-used-bytes/></D:prop></D:propfind>" --user "$WEBDAVUSER":"$WEBDAVPASS" --digest "$WEBDAVURL" --silent --show-error)
 REMOTE_AVAILABLE_SPACE=$(grep -oPm1 "(?<=<d:quota-available-bytes>)[^<]+" <<<"$REMOTE_SPACE_INFO" | awk '{ byte =$1 /1024/1024/1024; print byte " GB" }')
 
 echo "Remote available space: $REMOTE_AVAILABLE_SPACE"
 
 WEBDAV_FOLDER="$WEBDAVURL/$ARCFOLDERNAME"
 
-RESULT=$(curl -i --request MKCOL --user "$WEBDAVUSER":"$WEBDAVPASS" "$WEBDAV_FOLDER" --silent --show-error --write-out '%{http_code}' --output /dev/null)
+RESULT=$(curl -i --request MKCOL --user "$WEBDAVUSER":"$WEBDAVPASS" --digest "$WEBDAV_FOLDER" --silent --show-error --write-out '%{http_code}' --output /dev/null)
 
 if [ "$RESULT" == "201" ]; then
   echo "Created: $WEBDAV_FOLDER"
@@ -41,7 +41,7 @@ for FILES_DIR in $(cat "$SCRIPT_DIR/include.list"); do
 
   tar cfz "$ARCHIVE_PATH" --exclude-from="$SCRIPT_DIR/exclude.list" -C "$FILES_DIR" .
 
-  RESULT=$(curl --user "$WEBDAVUSER":"$WEBDAVPASS" -T "$ARCHIVE_PATH" "$WEBDAV_FOLDER/$ARCHIVE_NAME" --silent --show-error --write-out '%{http_code}' --output /dev/null)
+  RESULT=$(curl --user "$WEBDAVUSER":"$WEBDAVPASS" --digest -T "$ARCHIVE_PATH" "$WEBDAV_FOLDER/$ARCHIVE_NAME" --silent --show-error --write-out '%{http_code}' --output /dev/null)
 
   if [ "$RESULT" == "201" ]; then
     echo "Uploaded: $ARCHIVE_PATH"
@@ -60,7 +60,7 @@ mysql -N -e "SHOW DATABASES;" | grep -v -E "performance_schema|information_schem
 
   mysqldump "$DB" | gzip >"$ARCHIVE_PATH"
 
-  RESULT=$(curl --user "$WEBDAVUSER":"$WEBDAVPASS" -T "$ARCHIVE_PATH" "$WEBDAV_FOLDER/$ARCHIVE_NAME" --silent --show-error --write-out '%{http_code}' --output /dev/null)
+  RESULT=$(curl --user "$WEBDAVUSER":"$WEBDAVPASS" --digest -T "$ARCHIVE_PATH" "$WEBDAV_FOLDER/$ARCHIVE_NAME" --silent --show-error --write-out '%{http_code}' --output /dev/null)
 
   if [ "$RESULT" == "201" ]; then
     echo "Uploaded: $ARCHIVE_PATH"
@@ -75,7 +75,7 @@ done
 echo "$ARCFOLDERNAME" >>prev.list
 
 head -n -"$ARCMAX" prev.list | while read LASTBACKUPNAME; do
-  curl -i --request DELETE --user "$WEBDAVUSER":"$WEBDAVPASS" "$WEBDAVURL"/"$LASTBACKUPNAME"
+  curl -i --request DELETE --user "$WEBDAVUSER":"$WEBDAVPASS" --digest "$WEBDAVURL"/"$LASTBACKUPNAME"
   sed -i "/^$LASTBACKUPNAME$/d" prev.list
 done
 
