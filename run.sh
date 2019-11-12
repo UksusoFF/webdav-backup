@@ -72,11 +72,11 @@ mysql -N -e "SHOW DATABASES;" | grep -v -E "performance_schema|information_schem
   rm "$ARCHIVE_PATH"
 done
 
-echo "$ARCFOLDERNAME" >>prev.list
+echo "$ARCFOLDERNAME" >>"$SCRIPT_DIR/include.list"
 
-head -n -"$ARCMAX" prev.list | while read LASTBACKUPNAME; do
+head -n -"$ARCMAX" "$SCRIPT_DIR/include.list" | while read LASTBACKUPNAME; do
   curl -i --request DELETE --user "$WEBDAVUSER":"$WEBDAVPASS" --digest "$WEBDAVURL"/"$LASTBACKUPNAME"
-  sed -i "/^$LASTBACKUPNAME$/d" prev.list
+  sed -i "/^$LASTBACKUPNAME$/d" "$SCRIPT_DIR/include.list"
 done
 
 # Get file list in remote folder. Not used now.
