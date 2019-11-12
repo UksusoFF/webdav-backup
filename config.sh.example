@@ -4,4 +4,4 @@ export WEBDAVURL="https://webdav.yandex.ru"
 export WEBDAVUSER="backup@example.ru"
 export WEBDAVPASS="example"
 export ARCMAX="3"
-export FOLDER_PREFIX="server.name"
+export FOLDER_PREFIX=$(hostname)
