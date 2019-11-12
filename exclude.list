@@ -1,7 +1,7 @@
 backup.sh
-backup_exclude.list
-backup_include.list
-backup_prev.list
+exclude.list
+include.list
+prev.list
 cache/*
 tmp/*
 temp/*
