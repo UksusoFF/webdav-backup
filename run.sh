@@ -18,10 +18,10 @@ source "$SCRIPT_DIR/config.sh"
 echo "Local available space: $(df -h . | awk 'END {print $4}')"
 echo "Local used space: $(df -h . | awk 'END {print $5}')"
 
-REMOTE_SPACE_INFO=$(curl -i --request PROPFIND --header "Depth: 0" --data-ascii "<D:propfind xmlns:D=\"DAV:\"><D:prop><D:quota-available-bytes/><D:quota-used-bytes/></D:prop></D:propfind>" --user "$WEBDAVUSER":"$WEBDAVPASS" --digest "$WEBDAVURL" --silent --show-error)
-REMOTE_AVAILABLE_SPACE=$(grep -oPm1 "(?<=<d:quota-available-bytes>)[^<]+" <<<"$REMOTE_SPACE_INFO" | awk '{ byte =$1 /1024/1024/1024; print byte " GB" }')
+#REMOTE_SPACE_INFO=$(curl -i --request PROPFIND --header "Depth: 0" --data-ascii "<D:propfind xmlns:D=\"DAV:\"><D:prop><D:quota-available-bytes/><D:quota-used-bytes/></D:prop></D:propfind>" --user "$WEBDAVUSER":"$WEBDAVPASS" --digest "$WEBDAVURL" --silent --show-error)
+#REMOTE_AVAILABLE_SPACE=$(grep -oPm1 "(?<=<d:quota-available-bytes>)[^<]+" <<<"$REMOTE_SPACE_INFO" | awk '{ byte =$1 /1024/1024/1024; print byte " GB" }')
 
-echo "Remote available space: $REMOTE_AVAILABLE_SPACE"
+#echo "Remote available space: $REMOTE_AVAILABLE_SPACE"
 
 WEBDAV_FOLDER="${WEBDAVURL}/${FOLDER_PREFIX}_${ARCFOLDERNAME}"
 
@@ -63,9 +63,9 @@ mysql -N -e "SHOW DATABASES;" | grep -v -E "performance_schema|information_schem
   RESULT=$(curl --user "$WEBDAVUSER":"$WEBDAVPASS" --digest -T "$ARCHIVE_PATH" "$WEBDAV_FOLDER/$ARCHIVE_NAME" --silent --show-error --write-out '%{http_code}' --output /dev/null)
 
   if [ "$RESULT" == "201" ]; then
-    echo "Uploaded: $ARCHIVE_PATH"
+    echo "Uploaded: $(basename "$ARCHIVE_PATH")"
   else
-    echo "Failed: $ARCHIVE_PATH"
+    echo "Failed: $(basename "$ARCHIVE_PATH")"
     exit 1
   fi
 
