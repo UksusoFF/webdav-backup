@@ -3,7 +3,7 @@
 set -e
 
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
-ARCFOLDERNAME=$(date '+%F_%H_%M')
+ARCFOLDERNAME=${FOLDER_PREFIX}_$(date '+%F_%H_%M')
 
 if [ ! -f "$SCRIPT_DIR/config.sh" ]; then
   cp "$SCRIPT_DIR/config.sh.example" "$SCRIPT_DIR/config.sh"
@@ -23,7 +23,7 @@ echo "Local used space: $(df -h . | awk 'END {print $5}')"
 
 #echo "Remote available space: $REMOTE_AVAILABLE_SPACE"
 
-WEBDAV_FOLDER="${WEBDAVURL}/${FOLDER_PREFIX}_${ARCFOLDERNAME}"
+WEBDAV_FOLDER="${WEBDAVURL}/${ARCFOLDERNAME}"
 
 RESULT=$(curl -i --request MKCOL --user "$WEBDAVUSER":"$WEBDAVPASS" --digest "$WEBDAV_FOLDER" --silent --show-error --write-out '%{http_code}' --output /dev/null)
 
@@ -75,7 +75,15 @@ done
 echo "$ARCFOLDERNAME" >>"$SCRIPT_DIR/previous.list"
 
 head -n -"$ARCMAX" "$SCRIPT_DIR/previous.list" | while read LASTBACKUPNAME; do
-  curl -i --request DELETE --user "$WEBDAVUSER":"$WEBDAVPASS" --digest "$WEBDAVURL"/"$LASTBACKUPNAME"
+  RESULT=$(curl -i --request DELETE --user "$WEBDAVUSER":"$WEBDAVPASS" --digest "$WEBDAVURL"/"$LASTBACKUPNAME" --silent --show-error --write-out '%{http_code}' --output /dev/null)
+
+  if [ "$RESULT" == "201" ]; then
+    echo "Deleted: $(basename "$LASTBACKUPNAME")"
+  else
+    echo "Failed: $(basename "$LASTBACKUPNAME")"
+    exit 1
+  fi
+
   sed -i "/^$LASTBACKUPNAME$/d" "$SCRIPT_DIR/previous.list"
 done
 
