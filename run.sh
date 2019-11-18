@@ -3,17 +3,18 @@
 set -e
 
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
-ARCFOLDERNAME=${FOLDER_PREFIX}_$(date '+%F_%H_%M')
 
 if [ ! -f "$SCRIPT_DIR/config.sh" ]; then
   cp "$SCRIPT_DIR/config.sh.example" "$SCRIPT_DIR/config.sh"
   cp "$SCRIPT_DIR/include.list.example" "$SCRIPT_DIR/include.list"
-  touch "$SCRIPT_DIR/prev.list"
+  touch "$SCRIPT_DIR/previous.list"
   echo "Place your credentials to config.sh and file paths to include.list"
   exit 1
 fi
 
 source "$SCRIPT_DIR/config.sh"
+
+ARCFOLDERNAME="${FOLDER_PREFIX}_$(date '+%F_%H_%M')"
 
 echo "Local available space: $(df -h . | awk 'END {print $4}')"
 echo "Local used space: $(df -h . | awk 'END {print $5}')"
@@ -75,9 +76,9 @@ done
 echo "$ARCFOLDERNAME" >>"$SCRIPT_DIR/previous.list"
 
 head -n -"$ARCMAX" "$SCRIPT_DIR/previous.list" | while read LASTBACKUPNAME; do
-  RESULT=$(curl -i --request DELETE --user "$WEBDAVUSER":"$WEBDAVPASS" --digest "$WEBDAVURL"/"$LASTBACKUPNAME" --silent --show-error --write-out '%{http_code}' --output /dev/null)
+  RESULT=$(curl -i --request DELETE --user "$WEBDAVUSER":"$WEBDAVPASS" --digest "$WEBDAVURL/$LASTBACKUPNAME/" --silent --show-error --write-out '%{http_code}' --output /dev/null)
 
-  if [ "$RESULT" == "201" ]; then
+  if [ "$RESULT" == "204" ]; then
     echo "Deleted: $(basename "$LASTBACKUPNAME")"
   else
     echo "Failed: $(basename "$LASTBACKUPNAME")"
