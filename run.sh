@@ -4,9 +4,11 @@ set -e
 
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 
+FILES_LIST="$SCRIPT_DIR/include.list"
+
 if [ ! -f "$SCRIPT_DIR/config.sh" ]; then
   cp "$SCRIPT_DIR/config.sh.example" "$SCRIPT_DIR/config.sh"
-  cp "$SCRIPT_DIR/include.list.example" "$SCRIPT_DIR/include.list"
+  cp "$SCRIPT_DIR/include.list.example" "$FILES_LIST"
   touch "$SCRIPT_DIR/previous.list"
   echo "Place your credentials to config.sh and file paths to include.list"
   exit 1
@@ -35,62 +37,17 @@ else
   exit 1
 fi
 
-for FILES_DIR in $(cat "$SCRIPT_DIR/include.list"); do
-  ARCHIVE_NAME=$(basename "$(dirname "$FILES_DIR")")_$(basename "$FILES_DIR")_files.tar.gz
+if [ -f "${FILES_LIST}" ]; then
+  bash ./_src_files.sh "$WEBDAV_FOLDER"
+fi
 
-  ARCHIVE_PATH=$SCRIPT_DIR/$ARCHIVE_NAME
+if [ -n "$(which mysqldump)" ]; then
+  bash ./_src_mysql.sh "$WEBDAV_FOLDER"
+fi
 
-  tar cfz "$ARCHIVE_PATH" --exclude-from="$SCRIPT_DIR/exclude.list" -C "$FILES_DIR" .
-
-  RESULT=$(curl --user "$WEB_DAV_USER":"$WEB_DAV_PASS" --digest -T "$ARCHIVE_PATH" "$WEBDAV_FOLDER/$ARCHIVE_NAME" --silent --show-error --write-out '%{http_code}' --output /dev/null)
-
-  if [ "$RESULT" == "201" ]; then
-    echo "Uploaded: $(basename "$ARCHIVE_PATH")"
-  else
-    echo "Failed: $(basename "$ARCHIVE_PATH")"
-    exit 1
-  fi
-
-  rm "$ARCHIVE_PATH"
-done
-
-mysql -N -e "SHOW DATABASES;" | grep -v -E "performance_schema|information_schema|mysql|afterlogic|sys" | while read DB; do
-  ARCHIVE_NAME=${DB}_db.sql.gz
-
-  ARCHIVE_PATH=$SCRIPT_DIR/$ARCHIVE_NAME
-
-  mysqldump "$DB" | gzip >"$ARCHIVE_PATH"
-
-  RESULT=$(curl --user "$WEB_DAV_USER":"$WEB_DAV_PASS" --digest -T "$ARCHIVE_PATH" "$WEBDAV_FOLDER/$ARCHIVE_NAME" --silent --show-error --write-out '%{http_code}' --output /dev/null)
-
-  if [ "$RESULT" == "201" ]; then
-    echo "Uploaded: $(basename "$ARCHIVE_PATH")"
-  else
-    echo "Failed: $(basename "$ARCHIVE_PATH")"
-    exit 1
-  fi
-
-  rm "$ARCHIVE_PATH"
-done
-
-su -c "psql -qAtX -c \"SELECT datname FROM pg_database;\"" postgres | grep -v -E "postgres|template0|template1" | while read DB; do
-  ARCHIVE_NAME=${DB}_pg.sql.gz
-
-  ARCHIVE_PATH=$SCRIPT_DIR/$ARCHIVE_NAME
-
-  mysqldump "$DB" | gzip >"$ARCHIVE_PATH"
-
-  RESULT=$(curl --user "$WEB_DAV_USER":"$WEB_DAV_PASS" --digest -T "$ARCHIVE_PATH" "$WEBDAV_FOLDER/$ARCHIVE_NAME" --silent --show-error --write-out '%{http_code}' --output /dev/null)
-
-  if [ "$RESULT" == "201" ]; then
-    echo "Uploaded: $(basename "$ARCHIVE_PATH")"
-  else
-    echo "Failed: $(basename "$ARCHIVE_PATH")"
-    exit 1
-  fi
-
-  rm "$ARCHIVE_PATH"
-done
+if [ -n "$(which psql)" ]; then
+  bash ./_src_psql.sh "$WEBDAV_FOLDER"
+fi
 
 echo "$ARCFOLDERNAME" >>"$SCRIPT_DIR/previous.list"
 
