@@ -13,7 +13,7 @@ su -c "psql -qAtX -c \"SELECT datname FROM pg_database;\"" postgres | grep -v -E
 
   ARCHIVE_PATH=$SCRIPT_DIR/$ARCHIVE_NAME
 
-  mysqldump "$DB" | gzip >"$ARCHIVE_PATH"
+  sudo -u postgres pg_dump "$DB" | gzip >"$ARCHIVE_PATH"
 
   RESULT=$(curl --user "$WEB_DAV_USER":"$WEB_DAV_PASS" --digest -T "$ARCHIVE_PATH" "$WEBDAV_FOLDER/$ARCHIVE_NAME" --silent --show-error --write-out '%{http_code}' --output /dev/null)
 
