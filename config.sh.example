@@ -1,7 +1,7 @@
 #!/bin/bash
 
-export WEBDAVURL="https://webdav.yandex.ru"
-export WEBDAVUSER="backup@example.ru"
-export WEBDAVPASS="example"
-export ARCMAX="3"
+export WEB_DAV_URL="https://webdav.yandex.ru"
+export WEB_DAV_USER="backup@example.ru"
+export WEB_DAV_PASS="example"
+export ARC_MAX="3"
 export FOLDER_PREFIX=$(hostname)

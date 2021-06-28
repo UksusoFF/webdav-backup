@@ -8,9 +8,9 @@ source "$SCRIPT_DIR/config.sh"
 
 ARCFOLDERNAME="${FOLDER_PREFIX}_$(date '+%F_%H_%M')"
 
-WEBDAV_FOLDER="${WEBDAVURL}/${ARCFOLDERNAME}"
+WEBDAV_FOLDER="${WEB_DAV_URL}/${ARCFOLDERNAME}"
 
-RESULT=$(curl -i --request MKCOL --user "$WEBDAVUSER":"$WEBDAVPASS" --digest "$WEBDAV_FOLDER" --silent --show-error --write-out '%{http_code}' --output /dev/null)
+RESULT=$(curl -i --request MKCOL --user "$WEB_DAV_USER":"$WEB_DAV_PASS" --digest "$WEBDAV_FOLDER" --silent --show-error --write-out '%{http_code}' --output /dev/null)
 
 if [ "$RESULT" == "201" ]; then
   echo "Created: $WEBDAV_FOLDER"
