@@ -21,3 +21,8 @@ AuthMethod=LOGIN
 FromLineOverride=NO
 UseTLS=YES
 ```
+
+`/etc/ssmtp/revaliases`:
+```
+root:backup@example.ru:smtp.yandex.ru:465
+```
