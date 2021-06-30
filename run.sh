@@ -38,15 +38,15 @@ else
 fi
 
 if [ -f "${FILES_LIST}" ]; then
-  bash ./_src_files.sh "$WEBDAV_FOLDER"
+  bash "${SCRIPT_DIR}/_src_files.sh" "$WEBDAV_FOLDER"
 fi
 
 if [ -n "$(which mysqldump)" ]; then
-  bash ./_src_mysql.sh "$WEBDAV_FOLDER"
+  bash "${SCRIPT_DIR}/_src_mysql.sh" "$WEBDAV_FOLDER"
 fi
 
 if [ -n "$(which psql)" ]; then
-  bash ./_src_psql.sh "$WEBDAV_FOLDER"
+  bash "${SCRIPT_DIR}/_src_psql.sh" "$WEBDAV_FOLDER"
 fi
 
 echo "$ARCFOLDERNAME" >>"$SCRIPT_DIR/previous.list"
