@@ -16,8 +16,6 @@ fi
 
 source "${SCRIPT_DIR}/config.sh"
 
-ARC_FOLDER_NAME="${FOLDER_PREFIX}_$(date '+%F_%H_%M')"
-
 echo "Local available space: $(df -h . | awk 'END {print $4}')"
 echo "Local used space: $(df -h . | awk 'END {print $5}')"
 
