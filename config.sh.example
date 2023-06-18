@@ -6,3 +6,5 @@ export WEB_DAV_PASS="example"
 export ARC_MAX="3"
 export FOLDER_PREFIX=$(hostname)
 export ARC_FOLDER_NAME="${FOLDER_PREFIX}_$(date '+%F_%H_%M')"
+export MYSQL_USER=
+export MYSQL_PASS=
