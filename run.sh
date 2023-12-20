@@ -5,6 +5,7 @@ set -e
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 
 FILES_LIST="${SCRIPT_DIR}/include.list"
+DOCKER_LIST="${SCRIPT_DIR}/docker.list"
 
 if [ ! -f "${SCRIPT_DIR}/config.sh" ]; then
   cp "${SCRIPT_DIR}/config.sh.example" "${SCRIPT_DIR}/config.sh"
@@ -37,6 +38,10 @@ fi
 
 if [ -f "${FILES_LIST}" ]; then
   bash "${SCRIPT_DIR}/_src_files.sh" "${WEBDAV_FOLDER}"
+fi
+
+if [ -f "${DOCKER_LIST}" ]; then
+  bash "${SCRIPT_DIR}/_src_docker.sh" "${WEBDAV_FOLDER}"
 fi
 
 if [ -n "$(which mysqldump)" ]; then

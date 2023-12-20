@@ -1,10 +1,10 @@
 # webdav-backup
 
-Bash script for create MySQL/PostgreSQL and files dump and upload them via to WebDAV server.
+Bash script for create MySQL/PostgreSQL, Docker and files dump and upload them via to WebDAV server.
 
 ## Install 
 
-1. Create config.sh and include.list files
+1. Create `config.sh` and `include.list` files
 
 2. Add `crontab -e` config:
 ```
