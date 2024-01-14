@@ -61,7 +61,6 @@ head -n -"${ARC_MAX}" "${SCRIPT_DIR}/previous.list" | while read LAST_BACKUP_NAM
     echo "Deleted: $(basename "${LAST_BACKUP_NAME}")"
   else
     echo "Failed: $(basename "${LAST_BACKUP_NAME}")"
-    exit 1
   fi
 
   sed -i "/^${LAST_BACKUP_NAME}$/d" "${SCRIPT_DIR}/previous.list"
