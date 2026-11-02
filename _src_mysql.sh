@@ -6,6 +6,17 @@ SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 
 source "${SCRIPT_DIR}/config.sh"
 
+if command -v mariadb-dump >/dev/null 2>&1; then
+  SHOW_COMMAND="mariadb"
+  DUMP_COMMAND="mariadb-dump"
+elif command -v mysqldump >/dev/null 2>&1; then
+  SHOW_COMMAND="mysql"
+  DUMP_COMMAND="mysqldump"
+else
+  echo "ERROR: mariadb-dump/mysqldump not found" >&2
+  exit 127
+fi
+
 WEBDAV_FOLDER="${1}"
 
 if [[ -z ${MYSQL_USER} || -z ${MYSQL_PASS} ]]; then
@@ -15,12 +26,12 @@ else
   MYSQL_CREDENTIALS=" --user=${MYSQL_USER} --password=${MYSQL_PASS}"
 fi
 
-mysql -N -e "SHOW DATABASES;" ${MYSQL_CREDENTIALS} | grep -v -E "performance_schema|information_schema|mysql|afterlogic|sys" | while read DB; do
+"${SHOW_COMMAND}" -N -e "SHOW DATABASES;" ${MYSQL_CREDENTIALS} | grep -v -E "performance_schema|information_schema|mysql|afterlogic|phpmyadmin|sys" | while read DB; do
   ARCHIVE_NAME=${DB}_db.sql.gz
 
   ARCHIVE_PATH="${SCRIPT_DIR}/${ARCHIVE_NAME}"
 
-  mysqldump "${DB}" ${MYSQL_CREDENTIALS} | gzip >"${ARCHIVE_PATH}"
+  "${DUMP_COMMAND}" "${DB}" ${MYSQL_CREDENTIALS} | gzip >"${ARCHIVE_PATH}"
 
   RESULT=$(curl --user "${WEB_DAV_USER}":"${WEB_DAV_PASS}" --digest -T "${ARCHIVE_PATH}" "${WEBDAV_FOLDER}/${ARCHIVE_NAME}" --silent --show-error --write-out '%{http_code}' --output /dev/null)
 
