@@ -17,9 +17,10 @@ for FILES_DIR in $(cat "${SCRIPT_DIR}/include.list"); do
 
   RESULT=$(curl --user "${WEB_DAV_USER}":"${WEB_DAV_PASS}" --digest -T "${ARCHIVE_PATH}" "${WEBDAV_FOLDER}/${ARCHIVE_NAME}" --silent --show-error --write-out '%{http_code}' --output /dev/null)
 
-  if [ "${RESULT}" == "201" ]; then
+  if [[ "${RESULT}" =~ ^20[0-9]$ ]]; then
     echo "Uploaded: $(basename "${ARCHIVE_PATH}")"
   else
+    echo "Result: ${RESULT}"
     echo "Failed: $(basename "${ARCHIVE_PATH}")"
     exit 1
   fi

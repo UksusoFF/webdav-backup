@@ -29,9 +29,10 @@ WEBDAV_FOLDER="${WEB_DAV_URL}/${ARC_FOLDER_NAME}"
 
 RESULT=$(curl -i --request MKCOL --user "${WEB_DAV_USER}":"${WEB_DAV_PASS}" --digest "${WEBDAV_FOLDER}" --silent --show-error --write-out '%{http_code}' --output /dev/null)
 
-if [ "${RESULT}" == "201" ]; then
+if [[ "${RESULT}" =~ ^20[0-9]$ ]]; then
   echo "Created: ${WEBDAV_FOLDER}"
 else
+  echo "Result: ${RESULT}"
   echo "Failed: ${WEBDAV_FOLDER}"
   exit 1
 fi
@@ -57,9 +58,10 @@ echo "${ARC_FOLDER_NAME}" >>"${SCRIPT_DIR}/previous.list"
 head -n -"${ARC_MAX}" "${SCRIPT_DIR}/previous.list" | while read LAST_BACKUP_NAME; do
   RESULT=$(curl -i --request DELETE --user "${WEB_DAV_USER}":"${WEB_DAV_PASS}" --digest "${WEB_DAV_URL}/${LAST_BACKUP_NAME}/" --silent --show-error --write-out '%{http_code}' --output /dev/null)
 
-  if [ "${RESULT}" == "204" ]; then
+  if [[ "${RESULT}" =~ ^20[0-9]$ ]]; then
     echo "Deleted: $(basename "${LAST_BACKUP_NAME}")"
   else
+    echo "Result: ${RESULT}"
     echo "Failed: $(basename "${LAST_BACKUP_NAME}")"
   fi
 

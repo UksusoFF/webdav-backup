@@ -12,9 +12,10 @@ WEBDAV_FOLDER="${WEB_DAV_URL}/${ARC_FOLDER_NAME}"
 
 RESULT=$(curl -i --request MKCOL --user "${WEB_DAV_USER}":"${WEB_DAV_PASS}" --digest "${WEBDAV_FOLDER}" --silent --show-error --write-out '%{http_code}' --output /dev/null)
 
-if [ "${RESULT}" == "201" ]; then
+if [[ "${RESULT}" =~ ^20[0-9]$ ]]; then
   echo "Created: ${WEBDAV_FOLDER}"
 else
+  echo "Result: ${RESULT}"
   echo "Failed: ${WEBDAV_FOLDER}"
   exit 1
 fi
