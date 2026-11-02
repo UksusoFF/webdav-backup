@@ -1,5 +1,6 @@
 /.idea/*
 /config.sh
+/exclude.list
 /include.list
 /previous.list
 /run.log
